@@ -1,0 +1,423 @@
+:root {
+  color-scheme: dark;
+  --bg: #14141c;
+  --panel: #1f1f2b;
+  --panel-border: #33334a;
+  --text: #e8e6f0;
+  --muted: #9a97b3;
+  --gold: #d8b34a;
+  --hero: #3b6fd6;
+  --enemy: #c1432f;
+  --hp-good: #4caf6e;
+  --hp-mid: #d8b34a;
+  --hp-low: #c1432f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+}
+
+#app {
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+h1 {
+  text-align: center;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  margin: 8px 0 0;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  background: var(--gold);
+  color: #22220f;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+button:hover {
+  filter: brightness(1.08);
+}
+button:active {
+  transform: scale(0.97);
+}
+button.secondary {
+  background: #2c2c3d;
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+}
+
+input[type="text"] {
+  font: inherit;
+  background: #10101a;
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.9em;
+}
+.hud .floor-label {
+  color: var(--gold);
+  font-weight: 600;
+}
+.hud .speed-btn {
+  padding: 4px 10px;
+  font-size: 0.85em;
+}
+
+.arena {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 24px 8px 8px;
+  position: relative;
+  min-height: 220px;
+}
+
+.character {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.15s ease, opacity 0.4s ease;
+  position: relative;
+}
+
+.player-row,
+.enemy-row {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.player-row .character,
+.enemy-row .character {
+  flex: 0 1 130px;
+}
+
+.character .model {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  border: 3px solid var(--accent, var(--hero));
+  background: color-mix(in srgb, var(--accent, var(--hero)) 20%, #0000);
+}
+
+.character .name {
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+.character .hp-bar-track {
+  width: 130px;
+  height: 12px;
+  background: #0f0f18;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.character .hp-bar-fill {
+  height: 100%;
+  background: var(--hp-good);
+  width: 100%;
+  transition: width 0.35s ease, background-color 0.35s ease;
+}
+
+.character .hp-text {
+  font-size: 0.8em;
+  color: var(--muted);
+}
+
+.vs-mark {
+  color: var(--muted);
+  font-size: 1.4em;
+  padding-bottom: 44px;
+}
+
+@keyframes lunge-right {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(28px); }
+  100% { transform: translateX(0); }
+}
+@keyframes lunge-left {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(-28px); }
+  100% { transform: translateX(0); }
+}
+.character.attacking-hero { animation: lunge-right 0.4s ease; }
+.character.attacking-enemy { animation: lunge-left 0.4s ease; }
+
+@keyframes hit-flash {
+  0%, 100% { filter: none; }
+  30% { filter: brightness(2.4) saturate(0.3); }
+}
+.character.hit { animation: hit-flash 0.35s ease; }
+
+@keyframes crit-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.arena.crit-shake { animation: crit-shake 0.35s ease; }
+
+.character.defeated {
+  opacity: 0.15;
+  transform: scale(0.85) rotate(8deg);
+}
+
+.floating-text {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 700;
+  font-size: 1.2em;
+  pointer-events: none;
+  animation: float-up 0.9s ease forwards;
+  white-space: nowrap;
+}
+.floating-text.crit {
+  font-size: 1.5em;
+  color: #ff5252;
+}
+.floating-text.damage { color: #ff8a65; }
+.floating-text.heal { color: #69f0ae; }
+.floating-text.thorns { color: #b388ff; }
+.floating-text.execute { color: #ff1744; font-weight: 800; }
+.floating-text.revive { color: #40c4ff; font-weight: 800; }
+
+@keyframes float-up {
+  0% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -46px); }
+}
+
+.log {
+  font-size: 0.85em;
+  color: var(--muted);
+  max-height: 140px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.log .line.floor-banner { color: var(--gold); font-weight: 600; margin-top: 6px; }
+
+.banner {
+  text-align: center;
+  font-size: 1.4em;
+  color: var(--gold);
+  font-weight: 700;
+  padding: 24px 0;
+  animation: banner-pop 0.5s ease;
+}
+@keyframes banner-pop {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.move-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.move-btn {
+  background: #191924;
+  border: 2px solid var(--panel-border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+}
+.move-btn:hover {
+  border-color: var(--gold);
+  filter: brightness(1.1);
+}
+.move-btn .move-name {
+  font-weight: 700;
+}
+.move-btn .move-detail {
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+.reward-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.reward-card {
+  background: #191924;
+  border: 2px solid var(--rarity, var(--panel-border));
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  color: var(--text);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+.reward-card:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.12);
+}
+.reward-card .rarity-tag {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rarity, var(--muted));
+}
+.reward-card .card-name {
+  font-weight: 700;
+  font-size: 1.05em;
+}
+.reward-card .card-effect {
+  font-size: 0.9em;
+  color: var(--gold);
+}
+.reward-card .card-flavor {
+  font-size: 0.82em;
+  color: var(--muted);
+  font-style: italic;
+}
+.reward-card .card-price {
+  font-size: 0.85em;
+  color: var(--gold);
+  font-weight: 600;
+}
+.reward-card.unaffordable {
+  cursor: default;
+  opacity: 0.5;
+}
+.reward-card.unaffordable:hover {
+  transform: none;
+  filter: none;
+}
+.reward-card.unaffordable .card-price {
+  color: var(--enemy);
+}
+
+.shop-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--panel-border);
+}
+.shop-row:last-child { border-bottom: none; }
+
+.stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.85em;
+  color: var(--muted);
+}
+.stat-row span b { color: var(--text); }
+
+.center-text {
+  text-align: center;
+}
+
+.floor-map-wrap {
+  overflow-x: auto;
+  padding: 4px 0;
+}
+.floor-map {
+  display: block;
+  width: 100%;
+  min-width: 600px;
+  height: auto;
+}
+.map-edge {
+  stroke: var(--panel-border);
+  stroke-width: 2;
+}
+.map-node circle {
+  fill: #191924;
+  stroke: var(--panel-border);
+  stroke-width: 2;
+}
+.map-node text {
+  font-size: 18px;
+  pointer-events: none;
+}
+.map-node.available circle {
+  stroke: var(--gold);
+  stroke-width: 3;
+  cursor: pointer;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--gold) 60%, transparent));
+}
+.map-node.available:hover circle {
+  fill: #26263a;
+}
+.map-node.visited circle {
+  fill: #14141c;
+  stroke: var(--muted);
+  opacity: 0.6;
+}
+.map-node.current circle {
+  stroke: var(--hero);
+  stroke-width: 3;
+}
